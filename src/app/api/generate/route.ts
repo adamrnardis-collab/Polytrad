@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { checkRateLimit } from '@/lib/rateLimiter';
+import { getCached, setCached } from '@/lib/cache';
 import {
   generateWebsiteDNAWithClaude,
   generateRebuildSpecWithClaude,
@@ -79,6 +80,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Server configuration error: API keys not configured' },
         { status: 500 }
+      );
+    }
+
+    // Check cache first (saves ~$0.12 per hit)
+    const cachedResult = getCached(content, goal, customGoal);
+    if (cachedResult) {
+      console.log('Returning cached result for:', content.title);
+      return NextResponse.json(
+        {
+          success: true,
+          result: cachedResult,
+          cached: true,
+        },
+        {
+          headers: {
+            'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+            'X-RateLimit-Reset': rateLimit.resetTime.toString(),
+            'X-Cache': 'HIT',
+          },
+        }
       );
     }
 
@@ -178,9 +199,12 @@ export async function POST(request: NextRequest) {
       promptFinal,
       metadata: {
         processingTime,
-        modelsUsed: ['claude-3-5-sonnet-20241022', 'gpt-4'],
+        modelsUsed: ['claude-3-5-sonnet-20241022', process.env.OPENAI_MODEL || 'gpt-4o-mini'],
       },
     };
+
+    // Cache the result for future requests (saves ~$0.12 per hit)
+    setCached(content, goal, result, customGoal);
 
     return NextResponse.json(
       {
@@ -191,6 +215,7 @@ export async function POST(request: NextRequest) {
         headers: {
           'X-RateLimit-Remaining': rateLimit.remaining.toString(),
           'X-RateLimit-Reset': rateLimit.resetTime.toString(),
+          'X-Cache': 'MISS',
         },
       }
     );

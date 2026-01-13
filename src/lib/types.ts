@@ -54,6 +54,7 @@ export interface GenerationResult {
     processingTime: number;
     modelsUsed: string[];
   };
+  cached?: boolean;
 }
 
 export type InputMode = 'url' | 'html' | 'text';

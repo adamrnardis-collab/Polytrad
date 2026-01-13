@@ -74,7 +74,10 @@ export default function PromptMirror() {
         throw new Error(data.message || data.error || 'Failed to generate prompt');
       }
 
-      setResult(data.result);
+      setResult({
+        ...data.result,
+        cached: data.cached || false,
+      });
       setActiveTab('prompt');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate prompt');
@@ -232,9 +235,16 @@ export default function PromptMirror() {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">Results</h2>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              Generated in {(result.metadata.processingTime / 1000).toFixed(1)}s
-            </span>
+            <div className="flex items-center gap-3">
+              {result.cached && (
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium rounded-full border border-green-300 dark:border-green-700">
+                  ⚡ Cached (Saved ~$0.12)
+                </span>
+              )}
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {result.cached ? 'Instant' : `Generated in ${(result.metadata.processingTime / 1000).toFixed(1)}s`}
+              </span>
+            </div>
           </div>
 
           {/* Tabs */}

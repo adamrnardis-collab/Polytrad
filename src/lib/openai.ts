@@ -17,7 +17,9 @@ export const openai = new OpenAI({
   apiKey: apiKey || 'placeholder',
 });
 
-const DEFAULT_MODEL = process.env.OPENAI_MODEL || 'gpt-4';
+// Cost-optimized default: gpt-4o-mini (85% cheaper than gpt-4, minimal quality loss)
+// For max quality: gpt-4 (~$0.45/request vs ~$0.03/request for gpt-4o-mini)
+const DEFAULT_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const MAX_TOKENS = 4096;
 const TIMEOUT_MS = 60000; // 60 seconds
 

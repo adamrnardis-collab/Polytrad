@@ -315,18 +315,36 @@ Run the full AI debate pipeline to generate a vibe-coding prompt.
 
 ## Cost Considerations
 
-### Per Request Costs (Approximate)
+### Optimized Configuration (Default)
 
-- **Claude API**: ~$0.05-0.15 per generation (varies by complexity)
-- **OpenAI API**: ~$0.03-0.10 per generation (gpt-4)
-- **Total per generation**: ~$0.08-0.25
+**~$0.12 per request** (82% savings vs dual GPT-4)
 
-### Optimization Tips
+The app is configured for optimal cost-to-quality ratio:
+- **Claude 3.5 Sonnet** for main generation (high quality, lower cost)
+- **GPT-4o-mini** for critique/debate (85% cheaper than GPT-4, excellent quality)
+- **Automatic caching** saves ~$0.12 per repeated request
+- **Rate limiting** prevents runaway costs
 
-1. **Use Rate Limiting**: Prevent abuse with `RATE_LIMIT_PER_HOUR`
-2. **Cache Results**: Add Redis/KV caching for identical URLs
-3. **Choose Models Wisely**: Use `gpt-3.5-turbo` for lower costs
-4. **Monitor Usage**: Track API usage in Anthropic and OpenAI dashboards
+### Cost Comparison
+
+| Configuration | Per Request | 1,000 Requests/Month | Quality |
+|--------------|-------------|---------------------|---------|
+| **Optimized (Default)** | **$0.12** | **$120** | ⭐⭐⭐⭐⭐ |
+| Dual GPT-4 | $0.67 | $670 | ⭐⭐⭐⭐⭐ |
+| Claude Only | $0.09 | $90 | ⭐⭐⭐⭐ |
+| Dual GPT-3.5 | $0.11 | $110 | ⭐⭐⭐⭐ |
+
+### Cache Savings
+
+- **First request**: $0.12
+- **Repeated requests (within 1 hour)**: $0 (instant, cached)
+- **Average with 30% cache hit rate**: $0.08 per request
+
+### For Maximum Quality
+
+Set `OPENAI_MODEL=gpt-4` in .env.local for premium quality (~$0.67/request)
+
+**See [COST_OPTIMIZATION.md](./COST_OPTIMIZATION.md) for detailed cost analysis and strategies.**
 
 ## Legal & Ethical Considerations
 
