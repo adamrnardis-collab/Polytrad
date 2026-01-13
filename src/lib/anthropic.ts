@@ -83,7 +83,7 @@ export async function callClaude(options: ClaudeCallOptions): Promise<string> {
 }
 
 /**
- * Helper for JSON responses (attempts to parse)
+ * Helper for JSON responses (attempts to parse with multiple strategies)
  */
 export async function callClaudeJSON<T>(options: ClaudeCallOptions): Promise<T> {
   const response = await callClaude(options);
@@ -91,23 +91,50 @@ export async function callClaudeJSON<T>(options: ClaudeCallOptions): Promise<T> 
   // Log for debugging (truncated)
   console.log('Claude response (first 200 chars):', response.substring(0, 200));
 
-  try {
-    // Try to extract JSON from markdown code blocks if present
-    const jsonMatch = response.match(/```json\n?([\s\S]*?)\n?```/);
-    const jsonString = jsonMatch ? jsonMatch[1] : response;
-
-    return JSON.parse(jsonString.trim()) as T;
-  } catch (error) {
-    // If parsing fails, try the raw response
+  // Strategy 1: Try to extract JSON from markdown code blocks
+  const jsonMatch = response.match(/```json\n?([\s\S]*?)\n?```/);
+  if (jsonMatch) {
     try {
-      return JSON.parse(response.trim()) as T;
-    } catch (parseError) {
-      console.error('Failed to parse Claude JSON response:', {
-        responsePreview: response.substring(0, 500),
-        error: parseError instanceof Error ? parseError.message : 'Unknown error'
-      });
-      throw new Error(`Claude returned invalid JSON. Response preview: ${response.substring(0, 200)}...`);
+      return JSON.parse(jsonMatch[1].trim()) as T;
+    } catch (error) {
+      console.log('Strategy 1 (markdown block) failed, trying next...');
     }
+  }
+
+  // Strategy 2: Try to find JSON object by looking for { ... }
+  const jsonObjectMatch = response.match(/\{[\s\S]*\}/);
+  if (jsonObjectMatch) {
+    try {
+      return JSON.parse(jsonObjectMatch[0].trim()) as T;
+    } catch (error) {
+      console.log('Strategy 2 (regex extraction) failed, trying next...');
+    }
+  }
+
+  // Strategy 3: Try the raw response
+  try {
+    return JSON.parse(response.trim()) as T;
+  } catch (error) {
+    console.log('Strategy 3 (raw parse) failed, trying next...');
+  }
+
+  // Strategy 4: Remove common prefixes and try again
+  const cleanedResponse = response
+    .replace(/^Here's the JSON.*?:\s*/i, '')
+    .replace(/^Here is the.*?:\s*/i, '')
+    .replace(/^```\s*/, '')
+    .replace(/\s*```$/, '')
+    .trim();
+
+  try {
+    return JSON.parse(cleanedResponse) as T;
+  } catch (parseError) {
+    // All strategies failed
+    console.error('All parsing strategies failed. Full response:', response);
+    throw new Error(
+      `Claude did not return valid JSON after multiple parsing attempts. ` +
+      `Response started with: "${response.substring(0, 100)}..."`
+    );
   }
 }
 
@@ -116,10 +143,10 @@ export async function callClaudeJSON<T>(options: ClaudeCallOptions): Promise<T> 
  */
 export async function generateWebsiteDNAWithClaude(prompt: string): Promise<any> {
   return callClaudeJSON({
-    system: 'You are a UX/UI expert analyzing websites. You MUST respond with ONLY valid JSON - no explanation, no markdown, no extra text. Start with { and end with }.',
-    messages: [{ role: 'user', content: `${prompt}\n\nIMPORTANT: Return ONLY the JSON object, no other text.` }],
+    system: 'You MUST respond ONLY with raw JSON. No markdown formatting, no code blocks, no explanations. Just the JSON object starting with { and ending with }. Do not wrap it in ```json or any other formatting.',
+    messages: [{ role: 'user', content: `${prompt}\n\nCRITICAL: Your entire response must be ONLY the JSON object. First character: { Last character: }` }],
     maxTokens: 2000,
-    temperature: 0.7,
+    temperature: 0.3,
   });
 }
 
@@ -128,10 +155,10 @@ export async function generateWebsiteDNAWithClaude(prompt: string): Promise<any>
  */
 export async function generateRebuildSpecWithClaude(prompt: string): Promise<any> {
   return callClaudeJSON({
-    system: 'You are a senior software architect specializing in Next.js. You MUST respond with ONLY valid JSON - no explanation, no markdown, no extra text. Start with { and end with }.',
-    messages: [{ role: 'user', content: `${prompt}\n\nIMPORTANT: Return ONLY the JSON object, no other text.` }],
+    system: 'You MUST respond ONLY with raw JSON. No markdown formatting, no code blocks, no explanations. Just the JSON object starting with { and ending with }. Do not wrap it in ```json or any other formatting.',
+    messages: [{ role: 'user', content: `${prompt}\n\nCRITICAL: Your entire response must be ONLY the JSON object. First character: { Last character: }` }],
     maxTokens: 3000,
-    temperature: 0.7,
+    temperature: 0.3,
   });
 }
 
@@ -140,10 +167,10 @@ export async function generateRebuildSpecWithClaude(prompt: string): Promise<any
  */
 export async function generateCritiqueWithClaude(prompt: string): Promise<any> {
   return callClaudeJSON({
-    system: 'You are a technical reviewer providing constructive feedback. You MUST respond with ONLY valid JSON - no explanation, no markdown, no extra text. Start with { and end with }.',
-    messages: [{ role: 'user', content: `${prompt}\n\nIMPORTANT: Return ONLY the JSON object, no other text.` }],
+    system: 'You MUST respond ONLY with raw JSON. No markdown formatting, no code blocks, no explanations. Just the JSON object starting with { and ending with }. Do not wrap it in ```json or any other formatting.',
+    messages: [{ role: 'user', content: `${prompt}\n\nCRITICAL: Your entire response must be ONLY the JSON object. First character: { Last character: }` }],
     maxTokens: 1500,
-    temperature: 0.7,
+    temperature: 0.3,
   });
 }
 
