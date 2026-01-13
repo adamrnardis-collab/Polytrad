@@ -18,7 +18,7 @@ const anthropic = new Anthropic({
   apiKey: apiKey || 'placeholder',
 });
 
-const MODEL = process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
+const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514';
 const MAX_TOKENS = 4096;
 
 /**
