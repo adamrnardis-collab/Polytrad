@@ -120,7 +120,6 @@ Create the vibe-coding prompt now. Be specific and actionable.`;
 
     if (error instanceof Anthropic.APIError) {
       console.error('API Error Status:', error.status);
-      console.error('API Error Type:', error.type);
       console.error('API Error Message:', error.message);
 
       // Return detailed error
