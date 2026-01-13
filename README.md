@@ -1,209 +1,147 @@
-# Prompt Mirror
+# PromptMirror
 
-AI-powered website analysis tool that uses **both Claude and ChatGPT** to generate comprehensive rebuild specifications and vibe-coding prompts. Perfect for creating prompts for v0, Cursor, Lovable, Replit, and other AI coding assistants.
-
-## Features
-
-- **Dual AI Analysis**: Leverages both Claude (Anthropic) and ChatGPT (OpenAI) for comprehensive insights
-- **Debate Pipeline**: Models critique each other's outputs for higher quality results
-- **Security First**: SSRF protection, rate limiting, no client-side API keys
-- **Multiple Input Modes**: URL fetching, HTML paste, or plain text
-- **Flexible Goals**: Clone structure, modernize design, create SaaS landing, or custom transformations
-- **Production Ready**: Built with Next.js 14, TypeScript, and Tailwind CSS
+A simple prototype tool that analyzes websites and generates high-quality "vibe-coding prompts" for AI coding assistants like Cursor, v0, Lovable, and Replit.
 
 ## What It Does
 
-1. **Fetch & Extract**: Securely fetches a webpage and extracts clean content (structure, copy, components)
-2. **Generate DNA**: Both AI models analyze the website's design patterns and UX
-3. **Create Specs**: Both models independently generate rebuild specifications
-4. **Cross-Critique**: Claude critiques GPT's output, GPT critiques Claude's output
-5. **Merge**: Combines best elements from both specifications
-6. **Build Prompt**: Generates a comprehensive vibe-coding prompt
-7. **Refine**: Both models refine the prompt for maximum clarity
-8. **Output**: Final prompt ready to paste into your favorite AI coding tool
+1. User pastes a website URL (or raw HTML)
+2. App fetches and extracts the website's structure and content
+3. Claude analyzes the site and generates a detailed, copy-ready implementation prompt
+4. User copies the prompt and uses it in their favorite AI coding tool
+
+## Features
+
+- ✅ **Secure**: API keys never exposed to browser
+- ✅ **Simple**: One-page UI, no accounts needed
+- ✅ **Free**: No limits (prototype phase)
+- ✅ **SSRF Protected**: Validates URLs and blocks dangerous fetches
+- ✅ **Smart Extraction**: Detects heroes, features, pricing, testimonials, etc.
+- ✅ **Quality Prompts**: Structured, actionable, immediately usable
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
+- **Framework**: Next.js 15 (App Router)
+- **AI**: Anthropic Claude API (server-side only)
 - **Styling**: Tailwind CSS
-- **AI**: Anthropic Claude API + OpenAI API
-- **Content Parsing**: Cheerio
-- **Deployment**: Vercel-ready
+- **Parser**: Cheerio (HTML extraction)
+- **Language**: TypeScript
 
 ## Prerequisites
 
-- Node.js 18+ and npm/yarn/pnpm
-- Anthropic API key ([get one here](https://console.anthropic.com/)) - **REQUIRED**
-- OpenAI API key ([get one here](https://platform.openai.com/)) - **OPTIONAL** (for enhanced quality)
+- Node.js 18+
+- Anthropic API key ([get one here](https://console.anthropic.com/))
 
-## Installation
+## Quick Start
 
-1. **Clone the repository**
+### 1. Clone & Install
 
 ```bash
 git clone https://github.com/adamrnardis-collab/Polytrad.git
 cd Polytrad
-```
-
-2. **Install dependencies**
-
-```bash
 npm install
-# or
-yarn install
-# or
-pnpm install
 ```
 
-3. **Set up environment variables**
+### 2. Configure API Key
 
-Create a `.env.local` file in the root directory:
+Create `.env.local`:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Edit `.env.local` and add your API keys:
+Edit `.env.local` and add your key:
 
 ```env
-# REQUIRED: Anthropic API Key
 ANTHROPIC_API_KEY=sk-ant-api03-...
-
-# OPTIONAL: OpenAI API Key (for enhanced quality via dual-model debate)
-# Leave empty to run Claude-only mode (25% cheaper)
-OPENAI_API_KEY=
-
-# Optional: Rate limiting (requests per IP per hour)
-RATE_LIMIT_PER_HOUR=10
-
-# Optional: Max fetch size in bytes (default: 2MB)
-MAX_FETCH_SIZE=2097152
-
-# Optional: Model configurations
-ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
-OPENAI_MODEL=gpt-4
 ```
 
-4. **Run the development server**
+### 3. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-5. **Open your browser**
+Open [http://localhost:3000](http://localhost:3000)
 
-Navigate to [http://localhost:3000](http://localhost:3000)
+### 4. Use the App
 
-## Usage
-
-### Basic Workflow
-
-1. **Choose Input Mode**
-   - **URL**: Enter a website URL to fetch and analyze
-   - **HTML**: Paste raw HTML content
-   - **Text**: Paste plain text content
-
-2. **Fetch Content**
-   - Click "Fetch & Extract" to safely retrieve and parse the content
-   - The app extracts headings, navigation, copy, structure, and more
-
-3. **Select Goal**
-   - **Clone Structure**: Recreate the original design faithfully
-   - **Modernize**: Update the design while preserving core structure
-   - **Make it SaaS Landing**: Transform into a conversion-focused SaaS page
-   - **Custom**: Define your own transformation goal
-
-4. **Generate Prompt**
-   - Click "Generate Prompt" to start the AI pipeline
-   - This takes 30-60 seconds (both models + debate + refinement)
-
-5. **Review Results**
-   - View the final vibe-coding prompt
-   - Explore Website DNA, Rebuild Spec, and AI critiques
-   - Copy the final prompt to your clipboard
-
-6. **Use in AI Coding Tools**
-   - Paste the prompt into v0, Cursor, Lovable, Replit, or similar tools
-   - The prompt includes step-by-step instructions, component specs, and best practices
+1. Choose **URL** or **Paste HTML** mode
+2. Enter a website URL (e.g., `https://stripe.com`)
+3. Click **Fetch & Extract**
+4. Select **Build Intent** (Clone, Modernize, or SaaS)
+5. Click **Generate Prompt**
+6. Copy the generated prompt and use it in Cursor/v0/etc.
 
 ## Project Structure
 
 ```
-Polytrad/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── fetchPage/route.ts    # Secure URL fetching + extraction
-│   │   │   └── generate/route.ts     # AI debate pipeline orchestration
-│   │   ├── layout.tsx                # Root layout
-│   │   ├── page.tsx                  # Home page
-│   │   └── globals.css               # Global styles
-│   ├── components/
-│   │   └── PromptMirror.tsx          # Main UI component
-│   └── lib/
-│       ├── anthropic.ts              # Claude API client (server-only)
-│       ├── openai.ts                 # OpenAI API client (server-only)
-│       ├── ssrfProtection.ts         # SSRF prevention utilities
-│       ├── rateLimiter.ts            # IP-based rate limiting
-│       ├── contentExtractor.ts       # HTML content extraction
-│       ├── promptBuilder.ts          # Prompt generation logic
-│       └── types.ts                  # TypeScript interfaces
-├── .env.example                      # Environment variables template
-├── .gitignore
+PromptMirror/
+├── app/
+│   ├── api/
+│   │   ├── fetchPage/route.ts    # Secure URL fetching + extraction
+│   │   └── generate/route.ts     # Claude prompt generation
+│   ├── page.tsx                  # Main UI
+│   ├── layout.tsx                # Root layout
+│   └── globals.css               # Global styles
+├── lib/
+│   ├── validateUrl.ts            # SSRF protection
+│   ├── extractFromHtml.ts        # Content extraction
+│   ├── claude.ts                 # Claude API client (server-only)
+│   └── types.ts                  # TypeScript types
 ├── package.json
 ├── tsconfig.json
 ├── tailwind.config.ts
 ├── next.config.js
+├── .env.example
 └── README.md
 ```
 
-## Security Features
+## Security Notes
 
-### 1. API Keys Protection
+### API Key Protection (CRITICAL)
 
-- **Server-Only**: All API keys are stored server-side via environment variables
-- **Never Exposed**: Keys never appear in client bundles, logs, or network responses
-- **No Client Access**: All AI calls happen in Next.js API routes (server-side)
+- ✅ API key stored in `.env.local` (server-side only)
+- ✅ Never sent to browser or logged
+- ✅ All Claude API calls happen in Next.js API routes
+- ✅ Client-side code cannot access the key
+- ✅ Webpack configured to prevent accidental leaks
 
-### 2. SSRF Protection
+**The `lib/claude.ts` file enforces server-only execution:**
 
-- **Protocol Validation**: Only `http://` and `https://` allowed
-- **Blocked Hosts**: Prevents access to localhost, 127.0.0.1, and private IPs
-- **IP Range Filtering**: Blocks private networks (10.x.x.x, 172.16-31.x.x, 192.168.x.x)
-- **Metadata Endpoints**: Blocks cloud provider metadata IPs (AWS, GCP, Azure)
-- **Redirect Validation**: Re-validates URLs after following redirects
+```typescript
+if (typeof window !== 'undefined') {
+  throw new Error('Claude client must only be used server-side!');
+}
+```
 
-### 3. Rate Limiting
+### SSRF Protection
 
-- **IP-Based**: Limits requests per IP address per hour
-- **Configurable**: Set `RATE_LIMIT_PER_HOUR` environment variable
-- **Default**: 10 requests per hour per IP
-- **Headers**: Returns `X-RateLimit-Remaining` and `X-RateLimit-Reset` headers
+The app blocks dangerous URL fetching:
+- ✅ Only `http://` and `https://` allowed
+- ✅ Blocks `localhost`, `127.0.0.1`, `0.0.0.0`
+- ✅ Blocks private IP ranges (10.x, 172.16-31.x, 192.168.x)
+- ✅ Blocks link-local addresses (169.254.x.x)
+- ✅ Blocks cloud metadata endpoints
 
-### 4. Input Validation
+### Content Extraction
 
-- **Size Limits**: Maximum 2MB for fetched content (configurable)
-- **Content Sanitization**: Strips `<script>`, `<style>`, `<iframe>`, event handlers
-- **Timeout Protection**: 15-second timeout on URL fetches, 60-second timeout on AI calls
-- **Type Validation**: Validates request payloads and content types
+- Strips `<script>`, `<style>`, `<iframe>`, `<object>`, `<embed>`
+- Sanitizes all HTML before processing
+- Limits fetched content to 5MB
+- 15-second timeout on URL fetches
 
-### 5. Abuse Prevention
+## Environment Variables
 
-- **Request Size Limits**: Prevents memory exhaustion attacks
-- **Token Limits**: Hard limits on AI model token usage
-- **Error Handling**: Safe error messages that don't leak sensitive info
-- **Logging**: Minimal logging (no full page content or API responses)
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `ANTHROPIC_API_KEY` | **Yes** | - | Your Anthropic Claude API key |
+| `CLAUDE_MODEL` | No | `claude-3-5-sonnet-20241022` | Claude model to use |
 
 ## Deployment
 
 ### Deploy to Vercel (Recommended)
 
-1. **Push to GitHub**
+1. Push to GitHub:
 
 ```bash
 git add .
@@ -211,276 +149,171 @@ git commit -m "Initial commit"
 git push origin main
 ```
 
-2. **Deploy to Vercel**
+2. Go to [vercel.com/new](https://vercel.com/new)
+3. Import your repository
+4. Add environment variable:
+   - **Key**: `ANTHROPIC_API_KEY`
+   - **Value**: `sk-ant-...`
+5. Click **Deploy**
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+### Deploy to Netlify
 
-- Connect your GitHub repository
-- Vercel will auto-detect Next.js
-- Add environment variables in Vercel dashboard:
-  - `ANTHROPIC_API_KEY` (required)
-  - `OPENAI_API_KEY` (optional - for dual-model mode)
-  - `RATE_LIMIT_PER_HOUR` (optional)
-  - `MAX_FETCH_SIZE` (optional)
-
-3. **Deploy**
-
-Vercel will build and deploy automatically.
-
-### Deploy to Other Platforms
-
-The app is a standard Next.js application and can be deployed to:
-
-- **Netlify**: Use Next.js Runtime
-- **Railway**: Add environment variables in dashboard
-- **Fly.io**: Use Next.js Dockerfile
-- **Self-hosted**: Build with `npm run build` and run with `npm start`
-
-## Environment Variables Reference
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `ANTHROPIC_API_KEY` | **Yes** | - | Your Anthropic Claude API key |
-| `OPENAI_API_KEY` | **No** | - | Your OpenAI API key (optional, for dual-model mode) |
-| `RATE_LIMIT_PER_HOUR` | No | `10` | Requests allowed per IP per hour |
-| `MAX_FETCH_SIZE` | No | `2097152` | Max bytes to fetch from URLs (2MB) |
-| `ANTHROPIC_MODEL` | No | `claude-3-5-sonnet-20241022` | Claude model to use |
-| `OPENAI_MODEL` | No | `gpt-4o-mini` | OpenAI model to use (if OpenAI key provided) |
-| `ENABLE_CACHE` | No | `true` | Enable caching for repeated requests |
+1. Push to GitHub
+2. Go to [app.netlify.com](https://app.netlify.com/)
+3. Click **Add new site** → **Import an existing project**
+4. Select your repository
+5. Build settings:
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+6. Add environment variable: `ANTHROPIC_API_KEY`
+7. Deploy
 
 ## API Routes
 
 ### POST /api/fetchPage
 
-Securely fetch and extract content from a URL, HTML, or text.
+Fetches and extracts content from a URL.
 
-**Request Body:**
-
+**Request:**
 ```json
 {
-  "mode": "url" | "html" | "text",
-  "input": "string"
+  "url": "https://example.com"
 }
 ```
 
 **Response:**
-
 ```json
 {
   "success": true,
   "content": {
-    "title": "string",
-    "headings": [...],
-    "paragraphs": [...],
-    "navigation": [...],
-    "links": [...],
-    "ctaButtons": [...],
-    "metadata": {...},
-    "structure": {...}
+    "title": "Example Site",
+    "description": "...",
+    "headings": ["..."],
+    "navigation": ["..."],
+    "sections": [...],
+    "buttons": ["..."],
+    "forms": [...],
+    "footer": ["..."],
+    "detectedPatterns": ["Hero section", "Features grid"]
   }
 }
 ```
 
 ### POST /api/generate
 
-Run the full AI debate pipeline to generate a vibe-coding prompt.
+Generates a vibe-coding prompt.
 
-**Request Body:**
-
+**Request:**
 ```json
 {
-  "content": { /* ExtractedContent object */ },
-  "goal": "clone" | "modernize" | "saas-landing" | "custom",
-  "customGoal": "string" // if goal is "custom"
+  "content": { /* ExtractedContent */ },
+  "intent": "clone" | "modernize" | "saas"
 }
 ```
 
 **Response:**
-
 ```json
 {
   "success": true,
-  "result": {
-    "websiteDNA": {...},
-    "rebuildSpec": {...},
-    "promptV1": "string",
-    "claudeCritique": {...},
-    "gptCritique": {...},
-    "promptFinal": "string",
-    "metadata": {
-      "processingTime": 45000,
-      "modelsUsed": ["claude-3-5-sonnet-20241022", "gpt-4"]
-    }
-  }
+  "prompt": "# Website Rebuild Specification...",
+  "assumptions": "Standard modern web app assumptions...",
+  "extractedSummary": "**Title:** Example\n..."
 }
 ```
 
-## Cost Considerations
+## Legal & Ethical Disclaimer
 
-### Claude-Only Mode (Simplest & Cheapest)
+**IMPORTANT**: This tool is for inspiration and development assistance only.
 
-**~$0.09 per request** - Just add `ANTHROPIC_API_KEY`!
+- ❌ Do NOT copy proprietary text, images, or branding
+- ❌ Do NOT violate copyright or terms of service
+- ✅ Recreate **structure and functionality** with **original content**
+- ✅ Create a **distinct visual identity**
+- ✅ Ensure you have rights to any copied content
 
-- **No OpenAI API key needed**
-- Claude handles DNA, Spec, Critique, and Refinement
-- Self-improvement through iterative critique
-- Excellent quality for most use cases
-- Perfect for getting started
+**You are responsible for compliance with all applicable laws and terms of service.**
 
-### Dual-Model Mode (Enhanced Quality)
-
-**~$0.12 per request** - Add both API keys for debate pipeline
-
-- Claude + GPT-4o-mini cross-validation
-- Different model perspectives improve coverage
-- Debate/critique identifies blind spots
-- Best for production use
-
-### Cost Comparison
-
-| Configuration | Per Request | 1,000 Requests/Month | Quality | API Keys Needed |
-|--------------|-------------|---------------------|---------|-----------------|
-| **Claude Only** | **$0.09** | **$90** | ⭐⭐⭐⭐ | Anthropic only |
-| **Claude + GPT-4o-mini** | **$0.12** | **$120** | ⭐⭐⭐⭐⭐ | Anthropic + OpenAI |
-| Claude + GPT-4 | $0.67 | $670 | ⭐⭐⭐⭐⭐ | Anthropic + OpenAI |
-
-### Cache Savings
-
-- **First request**: $0.09-0.12 (depending on mode)
-- **Repeated requests (within 1 hour)**: $0 (instant, cached)
-- **Average with 30% cache hit rate**: $0.06-0.08 per request
-
-### How to Configure
-
-**Claude-Only (Recommended to Start):**
-```env
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=  # Leave empty
-```
-
-**Dual-Model (Enhanced Quality):**
-```env
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-...  # Add for debate pipeline
-OPENAI_MODEL=gpt-4o-mini  # Or gpt-4 for max quality
-```
-
-**See [COST_OPTIMIZATION.md](./COST_OPTIMIZATION.md) for detailed cost analysis and strategies.**
-
-## Legal & Ethical Considerations
-
-This tool is designed for **inspiration and learning purposes**.
-
-**Important Notes:**
-
-- Reproducing commercial websites may violate copyright, trademark, or terms of service
-- Always ensure you have proper authorization before deploying similar designs
-- Use generated prompts as a starting point, not a copy-paste solution
-- Respect intellectual property rights
-- The tool includes a disclaimer in the UI and generated prompts
+The generated prompts include reminders about legal/ethical requirements.
 
 ## Troubleshooting
 
-### "API keys not configured" error
+### "Couldn't fetch this page"
 
-- Ensure `.env.local` exists and contains valid API keys
-- Restart the dev server after adding keys
-- Check that keys don't have extra spaces or quotes
+**Solutions:**
+1. Use "Paste HTML" mode instead
+2. Copy the page source (View → Developer → View Source)
+3. Check if the site blocks bots or requires login
 
-### "Rate limit exceeded" error
+### "API key not configured"
 
-- Wait for the reset time (shown in error message)
-- Increase `RATE_LIMIT_PER_HOUR` if you're testing
+**Solutions:**
+1. Make sure `.env.local` exists
+2. Verify `ANTHROPIC_API_KEY=sk-ant-...` is set correctly
+3. Restart the dev server: `npm run dev`
 
-### "Failed to fetch content" error
+### "Invalid URL"
 
-- Ensure the URL is valid and publicly accessible
-- Some sites block automated requests (use HTML paste mode instead)
-- Check SSRF protection isn't blocking valid sites (review console logs)
+The URL failed SSRF validation. This is intentional security protection.
 
-### AI generation fails
+**Blocked:**
+- localhost / 127.0.0.1
+- Private IPs (10.x, 192.168.x)
+- Cloud metadata endpoints
 
-- Verify both API keys are valid and have credits
-- Check API status pages (Anthropic and OpenAI)
-- Review server logs for detailed error messages
+## Cost Considerations
 
-### Build errors
+### Per Request Cost
 
-- Run `npm install` to ensure all dependencies are installed
-- Check Node.js version (requires 18+)
-- Delete `.next` folder and rebuild: `rm -rf .next && npm run build`
+- **Fetch + Extract**: Free (runs on your server)
+- **Claude API Call**: ~$0.05-0.15 per generation
 
-## Development
+Average cost per generated prompt: **$0.08**
 
-### Run in Development Mode
+### Example Monthly Costs
 
-```bash
-npm run dev
-```
+| Usage | Prompts/Month | Cost |
+|-------|---------------|------|
+| Light | 10 | $0.80 |
+| Medium | 50 | $4.00 |
+| Heavy | 200 | $16.00 |
 
-### Build for Production
+## Limitations (Prototype)
 
-```bash
-npm run build
-npm start
-```
-
-### Lint Code
-
-```bash
-npm run lint
-```
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- No rate limiting (add for production)
+- No caching (repeated URLs cost the same)
+- No authentication (add for multi-user)
+- No usage analytics
+- No prompt history
 
 ## Future Enhancements
 
-### 48-Hour MVP (Current)
-- ✅ Basic UI with URL/HTML/text input
-- ✅ SSRF protection and rate limiting
-- ✅ Claude + ChatGPT debate pipeline
-- ✅ Final prompt generation
+- [ ] Caching layer (save repeated URLs)
+- [ ] Rate limiting (prevent abuse)
+- [ ] User accounts (save prompts)
+- [ ] Prompt history
+- [ ] Batch processing (multiple URLs)
+- [ ] Screenshot capture
+- [ ] Direct integration with Cursor/v0 APIs
 
-### Week 1 Improvements
-- [ ] Enhanced caching layer (Redis/KV)
-- [ ] Session-based rate limiting
-- [ ] Progress indicators for long operations
-- [ ] Better error recovery and retries
-- [ ] More sophisticated merge algorithms
-- [ ] A/B testing for different prompt templates
+## Contributing
 
-### Future Ideas
-- [ ] User authentication and saved projects
-- [ ] Historical prompt versions
-- [ ] Image analysis for design systems
-- [ ] Direct integration with v0/Cursor APIs
-- [ ] Team collaboration features
-- [ ] Analytics dashboard
+This is a prototype. Contributions welcome!
+
+1. Fork the repo
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ## License
 
-MIT License - feel free to use this project for personal or commercial purposes.
-
-## Acknowledgments
-
-- Built with [Next.js](https://nextjs.org/)
-- Powered by [Anthropic Claude](https://www.anthropic.com/) and [OpenAI](https://openai.com/)
-- UI styled with [Tailwind CSS](https://tailwindcss.com/)
+MIT License - feel free to use for any purpose.
 
 ## Support
 
-For issues, questions, or suggestions:
+For issues or questions:
 - Open an issue on GitHub
 - Contact: adamrnardis-collab
 
 ---
 
-**Disclaimer**: This tool is for educational and inspirational purposes. Always respect intellectual property rights and obtain proper authorization before reproducing website designs.
+**Built with ❤️ using Next.js, Claude, and too much coffee.**
