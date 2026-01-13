@@ -89,6 +89,9 @@ ${content.sections.map(s => `- ${s.type}: ${s.content.substring(0, 200)}`).join(
 Create the vibe-coding prompt now. Be specific and actionable.`;
 
   try {
+    console.log('Calling Claude API with model:', MODEL);
+    console.log('API key configured:', !!apiKey);
+
     const response = await anthropic.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
@@ -113,8 +116,15 @@ Create the vibe-coding prompt now. Be specific and actionable.`;
       assumptions
     };
   } catch (error) {
+    console.error('Claude API Error Details:', error);
+
     if (error instanceof Anthropic.APIError) {
-      throw new Error(`Claude API error: ${error.message}`);
+      console.error('API Error Status:', error.status);
+      console.error('API Error Type:', error.type);
+      console.error('API Error Message:', error.message);
+
+      // Return detailed error
+      throw new Error(`Claude API error (${error.status}): ${error.message}`);
     }
     throw error;
   }

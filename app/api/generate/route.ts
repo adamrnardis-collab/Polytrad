@@ -50,40 +50,26 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('generate error:', error);
+    console.error('Error type:', error instanceof Error ? 'Error' : typeof error);
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
 
-    // Handle specific errors
+    // Return the actual error message for debugging
     if (error instanceof Error) {
-      if (error.message.includes('API key')) {
-        return NextResponse.json(
-          {
-            error: 'Configuration Error',
-            message: 'Claude API key is not configured. Please set ANTHROPIC_API_KEY.'
-          },
-          { status: 500 }
-        );
-      }
-
-      if (error.message.includes('Claude API error')) {
-        return NextResponse.json(
-          {
-            error: 'AI Service Error',
-            message: 'Claude API request failed. Please try again.'
-          },
-          { status: 500 }
-        );
-      }
-
       return NextResponse.json(
         {
           error: 'Generation Failed',
-          message: error.message
+          message: error.message,
+          details: 'Check Netlify function logs for more details'
         },
         { status: 500 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Unexpected error occurred' },
+      {
+        error: 'Unexpected error occurred',
+        message: String(error)
+      },
       { status: 500 }
     );
   }
