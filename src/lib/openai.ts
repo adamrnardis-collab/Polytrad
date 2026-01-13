@@ -103,6 +103,9 @@ export async function callGPT(options: GPTCallOptions): Promise<string> {
 export async function callGPTJSON<T>(options: GPTCallOptions): Promise<T> {
   const response = await callGPT(options);
 
+  // Log for debugging (truncated)
+  console.log('GPT response (first 200 chars):', response.substring(0, 200));
+
   try {
     // Try to extract JSON from markdown code blocks if present
     const jsonMatch = response.match(/```json\n?([\s\S]*?)\n?```/);
@@ -113,8 +116,12 @@ export async function callGPTJSON<T>(options: GPTCallOptions): Promise<T> {
     // If parsing fails, try the raw response
     try {
       return JSON.parse(response.trim()) as T;
-    } catch {
-      throw new Error(`Failed to parse GPT response as JSON: ${response.substring(0, 200)}`);
+    } catch (parseError) {
+      console.error('Failed to parse GPT JSON response:', {
+        responsePreview: response.substring(0, 500),
+        error: parseError instanceof Error ? parseError.message : 'Unknown error'
+      });
+      throw new Error(`GPT returned invalid JSON. Response preview: ${response.substring(0, 200)}...`);
     }
   }
 }
@@ -124,9 +131,10 @@ export async function callGPTJSON<T>(options: GPTCallOptions): Promise<T> {
  */
 export async function generateWebsiteDNAWithGPT(prompt: string): Promise<any> {
   return callGPTJSON({
-    system: 'You are a UX/UI expert analyzing websites. Always respond with valid JSON only.',
-    messages: [{ role: 'user', content: prompt }],
+    system: 'You are a UX/UI expert analyzing websites. You MUST respond with ONLY valid JSON - no explanation, no markdown, no extra text. Start with { and end with }.',
+    messages: [{ role: 'user', content: `${prompt}\n\nIMPORTANT: Return ONLY the JSON object, no other text.` }],
     maxTokens: 2000,
+    temperature: 0.7,
   });
 }
 
@@ -135,9 +143,10 @@ export async function generateWebsiteDNAWithGPT(prompt: string): Promise<any> {
  */
 export async function generateRebuildSpecWithGPT(prompt: string): Promise<any> {
   return callGPTJSON({
-    system: 'You are a senior software architect specializing in Next.js. Always respond with valid JSON only.',
-    messages: [{ role: 'user', content: prompt }],
+    system: 'You are a senior software architect specializing in Next.js. You MUST respond with ONLY valid JSON - no explanation, no markdown, no extra text. Start with { and end with }.',
+    messages: [{ role: 'user', content: `${prompt}\n\nIMPORTANT: Return ONLY the JSON object, no other text.` }],
     maxTokens: 3000,
+    temperature: 0.7,
   });
 }
 
@@ -146,9 +155,10 @@ export async function generateRebuildSpecWithGPT(prompt: string): Promise<any> {
  */
 export async function generateCritiqueWithGPT(prompt: string): Promise<any> {
   return callGPTJSON({
-    system: 'You are a technical reviewer providing constructive feedback. Always respond with valid JSON only.',
-    messages: [{ role: 'user', content: prompt }],
+    system: 'You are a technical reviewer providing constructive feedback. You MUST respond with ONLY valid JSON - no explanation, no markdown, no extra text. Start with { and end with }.',
+    messages: [{ role: 'user', content: `${prompt}\n\nIMPORTANT: Return ONLY the JSON object, no other text.` }],
     maxTokens: 1500,
+    temperature: 0.7,
   });
 }
 

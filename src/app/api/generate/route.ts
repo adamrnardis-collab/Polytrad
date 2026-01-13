@@ -222,15 +222,45 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('generate error:', error);
 
+    // Provide detailed error messages
     if (error instanceof Error) {
+      // Extract useful information from error message
+      const errorMessage = error.message;
+
+      // Check for common error patterns
+      if (errorMessage.includes('invalid JSON') || errorMessage.includes('JSON')) {
+        return NextResponse.json(
+          {
+            error: 'AI Response Format Error',
+            message: 'One of the AI models returned an invalid response. Please try again. If the issue persists, the website content may be too complex.',
+            details: errorMessage.substring(0, 200)
+          },
+          { status: 500 }
+        );
+      }
+
+      if (errorMessage.includes('API key')) {
+        return NextResponse.json(
+          { error: 'Configuration Error', message: 'API keys are not properly configured on the server.' },
+          { status: 500 }
+        );
+      }
+
+      if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
+        return NextResponse.json(
+          { error: 'Timeout Error', message: 'The request took too long. Please try again with a simpler page.' },
+          { status: 504 }
+        );
+      }
+
       return NextResponse.json(
-        { error: 'Generation failed', message: error.message },
+        { error: 'Generation failed', message: errorMessage.substring(0, 300) },
         { status: 500 }
       );
     }
 
     return NextResponse.json(
-      { error: 'An unexpected error occurred' },
+      { error: 'An unexpected error occurred', message: 'Please try again or contact support if the issue persists.' },
       { status: 500 }
     );
   }
