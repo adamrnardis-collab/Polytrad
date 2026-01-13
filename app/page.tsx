@@ -27,12 +27,21 @@ export default function Home() {
         body: JSON.stringify({ url: urlInput }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || data.error || 'Failed to fetch page');
+        // Try to parse error response, but handle non-JSON responses gracefully
+        let errorMessage = 'Failed to fetch page';
+        try {
+          const text = await response.text();
+          const errorData = JSON.parse(text);
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch {
+          // Response wasn't valid JSON (e.g., HTML error page)
+          errorMessage = `Server error (${response.status})`;
+        }
+        throw new Error(errorMessage);
       }
 
+      const data = await response.json();
       setContent(data.content);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch page');
@@ -82,12 +91,21 @@ export default function Home() {
         body: JSON.stringify({ content, intent }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || data.error || 'Failed to generate prompt');
+        // Try to parse error response, but handle non-JSON responses gracefully
+        let errorMessage = 'Failed to generate prompt';
+        try {
+          const text = await response.text();
+          const errorData = JSON.parse(text);
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch {
+          // Response wasn't valid JSON (e.g., HTML error page)
+          errorMessage = `Server error (${response.status})`;
+        }
+        throw new Error(errorMessage);
       }
 
+      const data = await response.json();
       setPrompt(data.prompt);
       setAssumptions(data.assumptions);
       setSummary(data.extractedSummary);
