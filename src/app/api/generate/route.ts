@@ -75,13 +75,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check API keys
-    if (!process.env.ANTHROPIC_API_KEY || !process.env.OPENAI_API_KEY) {
+    // Check API keys (OpenAI is optional)
+    if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json(
-        { error: 'Server configuration error: API keys not configured' },
+        { error: 'Server configuration error: ANTHROPIC_API_KEY not configured' },
         { status: 500 }
       );
     }
+
+    const hasOpenAI = !!process.env.OPENAI_API_KEY;
+    console.log('Running with:', hasOpenAI ? 'Claude + GPT' : 'Claude only');
 
     // Check cache first (saves ~$0.12 per hit)
     const cachedResult = getCached(content, goal, customGoal);
@@ -105,91 +108,142 @@ export async function POST(request: NextRequest) {
 
     console.log('Starting generation pipeline for:', content.title);
 
-    // Step 1: Generate Website DNA in parallel (Claude + GPT)
-    console.log('Step 1: Generating Website DNA...');
-    const dnaPrompt = getWebsiteDNAPrompt(content, goal);
+    let websiteDNA: WebsiteDNA;
+    let claudeRebuildSpec: RebuildSpec;
+    let gptRebuildSpec: RebuildSpec;
+    let claudeCritique: Critique;
+    let gptCritique: Critique;
+    let mergedSpec: RebuildSpec;
 
-    const [claudeDNA, gptDNA] = await Promise.allSettled([
-      generateWebsiteDNAWithClaude(dnaPrompt),
-      generateWebsiteDNAWithGPT(dnaPrompt),
-    ]);
+    if (hasOpenAI) {
+      // Full pipeline with Claude + GPT debate
+      console.log('Step 1: Generating Website DNA (Claude + GPT)...');
+      const dnaPrompt = getWebsiteDNAPrompt(content, goal);
 
-    // Handle failures
-    if (claudeDNA.status === 'rejected' && gptDNA.status === 'rejected') {
-      throw new Error('Both models failed to generate Website DNA');
+      const [claudeDNA, gptDNA] = await Promise.allSettled([
+        generateWebsiteDNAWithClaude(dnaPrompt),
+        generateWebsiteDNAWithGPT(dnaPrompt),
+      ]);
+
+      if (claudeDNA.status === 'rejected' && gptDNA.status === 'rejected') {
+        throw new Error('Both models failed to generate Website DNA');
+      }
+
+      websiteDNA = claudeDNA.status === 'fulfilled'
+        ? claudeDNA.value
+        : gptDNA.status === 'fulfilled'
+        ? gptDNA.value
+        : { structure: '', uxPatterns: [], uiComponents: [], tone: '' };
+
+      console.log('Step 2: Generating Rebuild Specs (Claude + GPT)...');
+      const specPrompt = getRebuildSpecPrompt(content, websiteDNA, goal);
+
+      const [claudeSpec, gptSpec] = await Promise.allSettled([
+        generateRebuildSpecWithClaude(specPrompt),
+        generateRebuildSpecWithGPT(specPrompt),
+      ]);
+
+      claudeRebuildSpec = claudeSpec.status === 'fulfilled'
+        ? claudeSpec.value
+        : { routes: [], components: [], stylingRules: [], responsiveBehavior: [] };
+
+      gptRebuildSpec = gptSpec.status === 'fulfilled'
+        ? gptSpec.value
+        : { routes: [], components: [], stylingRules: [], responsiveBehavior: [] };
+
+      console.log('Step 3: Running cross-critique (Claude vs GPT)...');
+      const [claudeCritiqueResult, gptCritiqueResult] = await Promise.allSettled([
+        generateCritiqueWithClaude(
+          getCritiquePrompt(JSON.stringify(gptRebuildSpec, null, 2), 'ChatGPT')
+        ),
+        generateCritiqueWithGPT(
+          getCritiquePrompt(JSON.stringify(claudeRebuildSpec, null, 2), 'Claude')
+        ),
+      ]);
+
+      claudeCritique = claudeCritiqueResult.status === 'fulfilled'
+        ? claudeCritiqueResult.value
+        : { strengths: [], weaknesses: [], suggestions: [], missingElements: [] };
+
+      gptCritique = gptCritiqueResult.status === 'fulfilled'
+        ? gptCritiqueResult.value
+        : { strengths: [], weaknesses: [], suggestions: [], missingElements: [] };
+
+      console.log('Step 4: Merging specifications...');
+      mergedSpec = mergeSpecs(claudeRebuildSpec, gptRebuildSpec, claudeCritique, gptCritique);
+
+    } else {
+      // Simplified Claude-only pipeline
+      console.log('Step 1: Generating Website DNA (Claude only)...');
+      const dnaPrompt = getWebsiteDNAPrompt(content, goal);
+      websiteDNA = await generateWebsiteDNAWithClaude(dnaPrompt);
+
+      console.log('Step 2: Generating Rebuild Spec (Claude only)...');
+      const specPrompt = getRebuildSpecPrompt(content, websiteDNA, goal);
+      claudeRebuildSpec = await generateRebuildSpecWithClaude(specPrompt);
+
+      console.log('Step 3: Running self-critique (Claude)...');
+      claudeCritique = await generateCritiqueWithClaude(
+        getCritiquePrompt(JSON.stringify(claudeRebuildSpec, null, 2), 'the initial analysis')
+      );
+
+      // Apply critique improvements
+      const improvementPrompt = `Based on this critique, improve the rebuild specification:
+
+ORIGINAL SPEC:
+${JSON.stringify(claudeRebuildSpec, null, 2)}
+
+CRITIQUE:
+${JSON.stringify(claudeCritique, null, 2)}
+
+Return an improved version of the specification as JSON. Address the weaknesses and incorporate the suggestions.`;
+
+      const improvedSpec = await generateRebuildSpecWithClaude(improvementPrompt);
+
+      mergedSpec = improvedSpec;
+      gptRebuildSpec = { routes: [], components: [], stylingRules: [], responsiveBehavior: [] };
+      gptCritique = { strengths: [], weaknesses: [], suggestions: [], missingElements: [] };
     }
 
-    const websiteDNA: WebsiteDNA = claudeDNA.status === 'fulfilled'
-      ? claudeDNA.value
-      : gptDNA.status === 'fulfilled'
-      ? gptDNA.value
-      : { structure: '', uxPatterns: [], uiComponents: [], tone: '' };
-
-    // Step 2: Generate Rebuild Specs in parallel (Claude + GPT)
-    console.log('Step 2: Generating Rebuild Specs...');
-    const specPrompt = getRebuildSpecPrompt(content, websiteDNA, goal);
-
-    const [claudeSpec, gptSpec] = await Promise.allSettled([
-      generateRebuildSpecWithClaude(specPrompt),
-      generateRebuildSpecWithGPT(specPrompt),
-    ]);
-
-    const claudeRebuildSpec: RebuildSpec = claudeSpec.status === 'fulfilled'
-      ? claudeSpec.value
-      : { routes: [], components: [], stylingRules: [], responsiveBehavior: [] };
-
-    const gptRebuildSpec: RebuildSpec = gptSpec.status === 'fulfilled'
-      ? gptSpec.value
-      : { routes: [], components: [], stylingRules: [], responsiveBehavior: [] };
-
-    // Step 3: Cross-critique (Claude critiques GPT, GPT critiques Claude)
-    console.log('Step 3: Running cross-critique...');
-    const [claudeCritiqueResult, gptCritiqueResult] = await Promise.allSettled([
-      generateCritiqueWithClaude(
-        getCritiquePrompt(JSON.stringify(gptRebuildSpec, null, 2), 'ChatGPT')
-      ),
-      generateCritiqueWithGPT(
-        getCritiquePrompt(JSON.stringify(claudeRebuildSpec, null, 2), 'Claude')
-      ),
-    ]);
-
-    const claudeCritique: Critique = claudeCritiqueResult.status === 'fulfilled'
-      ? claudeCritiqueResult.value
-      : { strengths: [], weaknesses: [], suggestions: [], missingElements: [] };
-
-    const gptCritique: Critique = gptCritiqueResult.status === 'fulfilled'
-      ? gptCritiqueResult.value
-      : { strengths: [], weaknesses: [], suggestions: [], missingElements: [] };
-
-    // Step 4: Merge specs (deterministic best-of-both approach)
-    console.log('Step 4: Merging specifications...');
-    const mergedSpec = mergeSpecs(claudeRebuildSpec, gptRebuildSpec, claudeCritique, gptCritique);
-
-    // Step 5: Generate initial vibe prompt
-    console.log('Step 5: Building vibe prompt v1...');
+    // Step 4/5: Generate initial vibe prompt
+    const stepNum = hasOpenAI ? 5 : 4;
+    console.log(`Step ${stepNum}: Building vibe prompt v1...`);
     const promptV1 = buildVibePrompt(content, websiteDNA, mergedSpec, goal, customGoal);
 
-    // Step 6: Refine prompt in parallel (Claude + GPT)
-    console.log('Step 6: Refining final prompt...');
+    // Step 5/6: Refine prompt
+    const refineStepNum = hasOpenAI ? 6 : 5;
+    console.log(`Step ${refineStepNum}: Refining final prompt...`);
     const refinementPrompt = getRefinementPrompt(promptV1);
 
-    const [claudeRefined, gptRefined] = await Promise.allSettled([
-      refinePromptWithClaude(refinementPrompt),
-      refinePromptWithGPT(refinementPrompt),
-    ]);
+    let promptFinal: string;
 
-    // Use the better refinement (prefer Claude, fallback to GPT, then original)
-    const promptFinal = claudeRefined.status === 'fulfilled'
-      ? claudeRefined.value
-      : gptRefined.status === 'fulfilled'
-      ? gptRefined.value
-      : promptV1;
+    if (hasOpenAI) {
+      // Parallel refinement with both models
+      const [claudeRefined, gptRefined] = await Promise.allSettled([
+        refinePromptWithClaude(refinementPrompt),
+        refinePromptWithGPT(refinementPrompt),
+      ]);
+
+      // Use the better refinement (prefer Claude, fallback to GPT, then original)
+      promptFinal = claudeRefined.status === 'fulfilled'
+        ? claudeRefined.value
+        : gptRefined.status === 'fulfilled'
+        ? gptRefined.value
+        : promptV1;
+    } else {
+      // Claude-only refinement
+      promptFinal = await refinePromptWithClaude(refinementPrompt);
+    }
 
     const processingTime = Date.now() - startTime;
 
     console.log(`Generation complete in ${processingTime}ms`);
 
-    // Step 7: Return complete result
+    // Step 6/7: Return complete result
+    const modelsUsed = hasOpenAI
+      ? ['claude-3-5-sonnet-20241022', process.env.OPENAI_MODEL || 'gpt-4o-mini']
+      : ['claude-3-5-sonnet-20241022'];
+
     const result: GenerationResult = {
       websiteDNA,
       rebuildSpec: mergedSpec,
@@ -199,7 +253,7 @@ export async function POST(request: NextRequest) {
       promptFinal,
       metadata: {
         processingTime,
-        modelsUsed: ['claude-3-5-sonnet-20241022', process.env.OPENAI_MODEL || 'gpt-4o-mini'],
+        modelsUsed,
       },
     };
 

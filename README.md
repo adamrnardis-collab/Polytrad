@@ -34,8 +34,8 @@ AI-powered website analysis tool that uses **both Claude and ChatGPT** to genera
 ## Prerequisites
 
 - Node.js 18+ and npm/yarn/pnpm
-- Anthropic API key ([get one here](https://console.anthropic.com/))
-- OpenAI API key ([get one here](https://platform.openai.com/))
+- Anthropic API key ([get one here](https://console.anthropic.com/)) - **REQUIRED**
+- OpenAI API key ([get one here](https://platform.openai.com/)) - **OPTIONAL** (for enhanced quality)
 
 ## Installation
 
@@ -67,11 +67,12 @@ cp .env.example .env.local
 Edit `.env.local` and add your API keys:
 
 ```env
-# Required: Anthropic API Key
+# REQUIRED: Anthropic API Key
 ANTHROPIC_API_KEY=sk-ant-api03-...
 
-# Required: OpenAI API Key
-OPENAI_API_KEY=sk-...
+# OPTIONAL: OpenAI API Key (for enhanced quality via dual-model debate)
+# Leave empty to run Claude-only mode (25% cheaper)
+OPENAI_API_KEY=
 
 # Optional: Rate limiting (requests per IP per hour)
 RATE_LIMIT_PER_HOUR=10
@@ -217,8 +218,8 @@ git push origin main
 - Connect your GitHub repository
 - Vercel will auto-detect Next.js
 - Add environment variables in Vercel dashboard:
-  - `ANTHROPIC_API_KEY`
-  - `OPENAI_API_KEY`
+  - `ANTHROPIC_API_KEY` (required)
+  - `OPENAI_API_KEY` (optional - for dual-model mode)
   - `RATE_LIMIT_PER_HOUR` (optional)
   - `MAX_FETCH_SIZE` (optional)
 
@@ -239,12 +240,13 @@ The app is a standard Next.js application and can be deployed to:
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `ANTHROPIC_API_KEY` | Yes | - | Your Anthropic Claude API key |
-| `OPENAI_API_KEY` | Yes | - | Your OpenAI API key |
+| `ANTHROPIC_API_KEY` | **Yes** | - | Your Anthropic Claude API key |
+| `OPENAI_API_KEY` | **No** | - | Your OpenAI API key (optional, for dual-model mode) |
 | `RATE_LIMIT_PER_HOUR` | No | `10` | Requests allowed per IP per hour |
 | `MAX_FETCH_SIZE` | No | `2097152` | Max bytes to fetch from URLs (2MB) |
 | `ANTHROPIC_MODEL` | No | `claude-3-5-sonnet-20241022` | Claude model to use |
-| `OPENAI_MODEL` | No | `gpt-4` | OpenAI model to use |
+| `OPENAI_MODEL` | No | `gpt-4o-mini` | OpenAI model to use (if OpenAI key provided) |
+| `ENABLE_CACHE` | No | `true` | Enable caching for repeated requests |
 
 ## API Routes
 
@@ -315,34 +317,53 @@ Run the full AI debate pipeline to generate a vibe-coding prompt.
 
 ## Cost Considerations
 
-### Optimized Configuration (Default)
+### Claude-Only Mode (Simplest & Cheapest)
 
-**~$0.12 per request** (82% savings vs dual GPT-4)
+**~$0.09 per request** - Just add `ANTHROPIC_API_KEY`!
 
-The app is configured for optimal cost-to-quality ratio:
-- **Claude 3.5 Sonnet** for main generation (high quality, lower cost)
-- **GPT-4o-mini** for critique/debate (85% cheaper than GPT-4, excellent quality)
-- **Automatic caching** saves ~$0.12 per repeated request
-- **Rate limiting** prevents runaway costs
+- **No OpenAI API key needed**
+- Claude handles DNA, Spec, Critique, and Refinement
+- Self-improvement through iterative critique
+- Excellent quality for most use cases
+- Perfect for getting started
+
+### Dual-Model Mode (Enhanced Quality)
+
+**~$0.12 per request** - Add both API keys for debate pipeline
+
+- Claude + GPT-4o-mini cross-validation
+- Different model perspectives improve coverage
+- Debate/critique identifies blind spots
+- Best for production use
 
 ### Cost Comparison
 
-| Configuration | Per Request | 1,000 Requests/Month | Quality |
-|--------------|-------------|---------------------|---------|
-| **Optimized (Default)** | **$0.12** | **$120** | ⭐⭐⭐⭐⭐ |
-| Dual GPT-4 | $0.67 | $670 | ⭐⭐⭐⭐⭐ |
-| Claude Only | $0.09 | $90 | ⭐⭐⭐⭐ |
-| Dual GPT-3.5 | $0.11 | $110 | ⭐⭐⭐⭐ |
+| Configuration | Per Request | 1,000 Requests/Month | Quality | API Keys Needed |
+|--------------|-------------|---------------------|---------|-----------------|
+| **Claude Only** | **$0.09** | **$90** | ⭐⭐⭐⭐ | Anthropic only |
+| **Claude + GPT-4o-mini** | **$0.12** | **$120** | ⭐⭐⭐⭐⭐ | Anthropic + OpenAI |
+| Claude + GPT-4 | $0.67 | $670 | ⭐⭐⭐⭐⭐ | Anthropic + OpenAI |
 
 ### Cache Savings
 
-- **First request**: $0.12
+- **First request**: $0.09-0.12 (depending on mode)
 - **Repeated requests (within 1 hour)**: $0 (instant, cached)
-- **Average with 30% cache hit rate**: $0.08 per request
+- **Average with 30% cache hit rate**: $0.06-0.08 per request
 
-### For Maximum Quality
+### How to Configure
 
-Set `OPENAI_MODEL=gpt-4` in .env.local for premium quality (~$0.67/request)
+**Claude-Only (Recommended to Start):**
+```env
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=  # Leave empty
+```
+
+**Dual-Model (Enhanced Quality):**
+```env
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...  # Add for debate pipeline
+OPENAI_MODEL=gpt-4o-mini  # Or gpt-4 for max quality
+```
 
 **See [COST_OPTIMIZATION.md](./COST_OPTIMIZATION.md) for detailed cost analysis and strategies.**
 
