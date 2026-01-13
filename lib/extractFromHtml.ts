@@ -17,8 +17,8 @@ export function extractFromHtml(html: string): ExtractedContent {
 
   // Extract meta description
   const description =
-    $('meta[name="description"]').attr('content') ||
-    $('meta[property="og:description"]').attr('content') ||
+    ($('meta[name="description"]').attr('content') ?? '') ||
+    ($('meta[property="og:description"]').attr('content') ?? '') ||
     '';
 
   // Extract headings (h1-h3 only)
@@ -104,7 +104,7 @@ export function extractFromHtml(html: string): ExtractedContent {
   // Extract buttons/CTAs
   const buttons: string[] = [];
   $('button, a.button, a.btn, [role="button"], input[type="submit"]').each((_, elem) => {
-    const text = $(elem).text().trim() || $(elem).attr('value') || '';
+    const text = $(elem).text().trim() || ($(elem).attr('value') ?? '') || '';
     if (text && buttons.length < 10) {
       buttons.push(text);
     }
@@ -113,11 +113,11 @@ export function extractFromHtml(html: string): ExtractedContent {
   // Extract form info
   const forms: any[] = [];
   $('form').each((_, elem) => {
-    const action = $(elem).attr('action') || 'unknown';
+    const action = $(elem).attr('action') ?? 'unknown';
     const fields: string[] = [];
     $(elem).find('input, textarea, select').each((_, field) => {
-      const type = $(field).attr('type') || $(field).prop('tagName').toLowerCase();
-      const name = $(field).attr('name') || $(field).attr('placeholder') || type;
+      const type = ($(field).attr('type') ?? '') || String($(field).prop('tagName')).toLowerCase();
+      const name = ($(field).attr('name') ?? '') || ($(field).attr('placeholder') ?? '') || type;
       fields.push(name);
     });
     if (fields.length > 0 && forms.length < 3) {
