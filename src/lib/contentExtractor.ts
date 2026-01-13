@@ -1,6 +1,7 @@
 // Content Extractor - Extract clean content from HTML
 
 import * as cheerio from 'cheerio';
+import type { Element } from 'domhandler';
 import type { ExtractedContent } from './types';
 
 const MAX_CONTENT_LENGTH = 50000; // Maximum characters to extract
@@ -31,8 +32,9 @@ export function extractContent(html: string): ExtractedContent {
   const headings: Array<{ level: number; text: string }> = [];
   $('h1, h2, h3, h4, h5, h6').each((_, elem) => {
     const text = $(elem).text().trim();
-    if (text && headings.length < MAX_ITEMS_PER_CATEGORY) {
-      const level = parseInt(elem.tagName.substring(1));
+    if (text && headings.length < MAX_ITEMS_PER_CATEGORY && 'tagName' in elem) {
+      const element = elem as Element;
+      const level = parseInt(element.tagName.substring(1));
       headings.push({ level, text });
     }
   });
@@ -189,10 +191,13 @@ export function sanitizeHTML(html: string): string {
 
   // Remove all event handler attributes
   $('*').each((_, elem) => {
-    const attributes = elem.attribs;
-    for (const attr in attributes) {
-      if (attr.startsWith('on')) {
-        $(elem).removeAttr(attr);
+    if ('attribs' in elem && elem.attribs) {
+      const element = elem as Element;
+      const attributes = element.attribs;
+      for (const attr in attributes) {
+        if (attr.startsWith('on')) {
+          $(elem).removeAttr(attr);
+        }
       }
     }
   });
