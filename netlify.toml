@@ -6,5 +6,10 @@
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
 
+# Extend function timeout for Claude API calls (requires Netlify Pro for full 26s)
+[functions]
+  external_node_modules = ["@anthropic-ai/sdk"]
+  node_bundler = "esbuild"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"

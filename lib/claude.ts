@@ -16,10 +16,11 @@ if (!apiKey) {
 
 const anthropic = new Anthropic({
   apiKey: apiKey || 'placeholder',
+  timeout: 25000, // 25 second timeout (under Netlify's 26s limit)
 });
 
 const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-20250514';
-const MAX_TOKENS = 8192; // Increased for comprehensive prompts
+const MAX_TOKENS = 4096; // Balanced for good prompts within timeout limits
 
 /**
  * Generate a comprehensive vibe-coding prompt from extracted content
@@ -274,6 +275,17 @@ Now generate the COMPLETE implementation blueprint. Remember:
       // Return detailed error
       throw new Error(`Claude API error (${error.status}): ${error.message}`);
     }
+
+    // Handle timeout errors
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again with a simpler page.');
+    }
+
+    // Handle connection timeout from Anthropic SDK
+    if (error instanceof Error && error.message.includes('timeout')) {
+      throw new Error('Claude API request timed out. Please try again.');
+    }
+
     throw error;
   }
 }
