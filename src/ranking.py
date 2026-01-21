@@ -612,6 +612,9 @@ Candidates are ranked by a weighted combination of:
 
     def _save_html(self, candidates: list[EnzymeCandidate], path: Path) -> None:
         """Save rankings to HTML report."""
+        top_score = f"{candidates[0].overall_score:.3f}" if candidates else "0"
+        high_conf_count = sum(1 for c in candidates if c.plddt_mean >= 70)
+
         html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -690,11 +693,11 @@ Candidates are ranked by a weighted combination of:
             <div class="stat-label">Passed Filtering</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value">{candidates[0].overall_score:.3f if candidates else 0}</div>
+            <div class="stat-value">{top_score}</div>
             <div class="stat-label">Top Score</div>
         </div>
         <div class="stat-box">
-            <div class="stat-value">{sum(1 for c in candidates if c.plddt_mean >= 70)}</div>
+            <div class="stat-value">{high_conf_count}</div>
             <div class="stat-label">High Confidence</div>
         </div>
     </div>

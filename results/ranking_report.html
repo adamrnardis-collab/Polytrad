@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClimateEnzyme Rankings - PET Degradation Candidates</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 { color: #2e7d32; border-bottom: 3px solid #4caf50; padding-bottom: 10px; }
+        h2 { color: #1565c0; margin-top: 30px; }
+        .stats { display: flex; gap: 20px; margin: 20px 0; }
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+            text-align: center;
+        }
+        .stat-value { font-size: 2em; font-weight: bold; color: #2e7d32; }
+        .stat-label { color: #666; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #1565c0; color: white; }
+        tr:hover { background: #f5f5f5; }
+        .score-high { color: #2e7d32; font-weight: bold; }
+        .score-medium { color: #f57c00; }
+        .score-low { color: #c62828; }
+        .candidate-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #4caf50;
+        }
+        .candidate-card h3 { margin-top: 0; color: #1565c0; }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin-right: 5px;
+        }
+        .badge-success { background: #e8f5e9; color: #2e7d32; }
+        .badge-info { background: #e3f2fd; color: #1565c0; }
+        .badge-warning { background: #fff3e0; color: #e65100; }
+        footer { margin-top: 40px; text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>ClimateEnzyme Discovery Pipeline</h1>
+    <h2 style="color: #666; font-weight: normal;">PET-Degrading Enzyme Candidate Rankings</h2>
+
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-value">5</div>
+            <div class="stat-label">Total Candidates</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">5</div>
+            <div class="stat-label">Passed Filtering</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">0.862</div>
+            <div class="stat-label">Top Score</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value">4</div>
+            <div class="stat-label">High Confidence</div>
+        </div>
+    </div>
+
+    <h2>Top 10 Candidates</h2>
+
+    <div class="candidate-card">
+        <h3>#1: PETASE_DEMO1</h3>
+        <p>
+            <span class="badge badge-info">Organism: Ideonella sakaiensis</span>
+            <span class="badge badge-info">Length: 290 aa</span>
+            <span class="badge badge-success">
+                Soluble
+            </span>
+        </p>
+        <p><strong>Overall Score:</strong> <span class="score-high">0.862</span></p>
+        <p><strong>pLDDT:</strong> <span class="score-high">92.5</span></p>
+        <p><strong>Notes:</strong> Very high confidence structure; Multiple potential binding sites; Predicted soluble (easier expression); Novel sequence - potential for new properties</p>
+    </div>
+
+    <div class="candidate-card">
+        <h3>#2: CUTINASE_DEMO2</h3>
+        <p>
+            <span class="badge badge-info">Organism: Thermobifida fusca</span>
+            <span class="badge badge-info">Length: 261 aa</span>
+            <span class="badge badge-success">
+                Soluble
+            </span>
+        </p>
+        <p><strong>Overall Score:</strong> <span class="score-high">0.854</span></p>
+        <p><strong>pLDDT:</strong> <span class="score-high">88.3</span></p>
+        <p><strong>Notes:</strong> Good confidence structure; Multiple potential binding sites; Predicted soluble (easier expression); Novel sequence - potential for new properties</p>
+    </div>
+
+    <div class="candidate-card">
+        <h3>#3: LIPASE_DEMO5</h3>
+        <p>
+            <span class="badge badge-info">Organism: Thermomyces lanuginosus</span>
+            <span class="badge badge-info">Length: 269 aa</span>
+            <span class="badge badge-success">
+                Soluble
+            </span>
+        </p>
+        <p><strong>Overall Score:</strong> <span class="score-high">0.842</span></p>
+        <p><strong>pLDDT:</strong> <span class="score-high">81.7</span></p>
+        <p><strong>Notes:</strong> Good confidence structure; Multiple potential binding sites; Predicted soluble (easier expression); Novel sequence - potential for new properties</p>
+    </div>
+
+    <div class="candidate-card">
+        <h3>#4: ESTERASE_DEMO3</h3>
+        <p>
+            <span class="badge badge-info">Organism: Bacillus subtilis</span>
+            <span class="badge badge-info">Length: 301 aa</span>
+            <span class="badge badge-success">
+                Soluble
+            </span>
+        </p>
+        <p><strong>Overall Score:</strong> <span class="score-high">0.742</span></p>
+        <p><strong>pLDDT:</strong> <span class="score-high">75.2</span></p>
+        <p><strong>Notes:</strong> Good confidence structure; Clear active site detected; Predicted soluble (easier expression); Novel sequence - potential for new properties</p>
+    </div>
+
+    <div class="candidate-card">
+        <h3>#5: HYDROLASE_DEMO4</h3>
+        <p>
+            <span class="badge badge-info">Organism: Pseudomonas sp.</span>
+            <span class="badge badge-info">Length: 278 aa</span>
+            <span class="badge badge-success">
+                Soluble
+            </span>
+        </p>
+        <p><strong>Overall Score:</strong> <span class="score-high">0.728</span></p>
+        <p><strong>pLDDT:</strong> <span class="score-medium">68.4</span></p>
+        <p><strong>Notes:</strong> Moderate confidence structure; Clear active site detected; Predicted soluble (easier expression); Novel sequence - potential for new properties</p>
+    </div>
+
+    <h2>Complete Rankings</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>ID</th>
+                <th>Organism</th>
+                <th>Length</th>
+                <th>pLDDT</th>
+                <th>Score</th>
+                <th>Soluble</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr>
+                <td>1</td>
+                <td>PETASE_DEMO1</td>
+                <td>Ideonella sakaiensis</td>
+                <td>290</td>
+                <td>92.5</td>
+                <td class="score-high">0.862</td>
+                <td>Yes</td>
+            </tr>
+
+            <tr>
+                <td>2</td>
+                <td>CUTINASE_DEMO2</td>
+                <td>Thermobifida fusca</td>
+                <td>261</td>
+                <td>88.3</td>
+                <td class="score-high">0.854</td>
+                <td>Yes</td>
+            </tr>
+
+            <tr>
+                <td>3</td>
+                <td>LIPASE_DEMO5</td>
+                <td>Thermomyces lanuginosus</td>
+                <td>269</td>
+                <td>81.7</td>
+                <td class="score-high">0.842</td>
+                <td>Yes</td>
+            </tr>
+
+            <tr>
+                <td>4</td>
+                <td>ESTERASE_DEMO3</td>
+                <td>Bacillus subtilis</td>
+                <td>301</td>
+                <td>75.2</td>
+                <td class="score-high">0.742</td>
+                <td>Yes</td>
+            </tr>
+
+            <tr>
+                <td>5</td>
+                <td>HYDROLASE_DEMO4</td>
+                <td>Pseudomonas sp.</td>
+                <td>278</td>
+                <td>68.4</td>
+                <td class="score-high">0.728</td>
+                <td>Yes</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <footer>
+        <p>Generated by ClimateEnzyme Discovery Pipeline on 2026-01-21 10:07</p>
+        <p>Open Source | MIT License | <a href="https://github.com">GitHub Repository</a></p>
+    </footer>
+</body>
+</html>

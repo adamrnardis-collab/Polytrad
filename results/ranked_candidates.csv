@@ -1,0 +1,6 @@
+Rank,Sequence_ID,Accession,Organism,Length,pLDDT,Overall_Score,Structural_Score,Active_Site_Score,Novelty_Score,Stability_Score,Is_Soluble,Druggable_Pockets,Functional_Notes,PDB_Path
+1,PETASE_DEMO1,,Ideonella sakaiensis,290,92.5,0.862,0.841,0.900,0.600,1.000,True,2,Very high confidence structure; Multiple potential binding sites; Predicted soluble (easier expression); Novel sequence - potential for new properties,
+2,CUTINASE_DEMO2,,Thermobifida fusca,261,88.3,0.854,0.814,0.900,0.600,1.000,True,2,Good confidence structure; Multiple potential binding sites; Predicted soluble (easier expression); Novel sequence - potential for new properties,
+3,LIPASE_DEMO5,,Thermomyces lanuginosus,269,81.7,0.842,0.773,0.900,0.600,1.000,True,2,Good confidence structure; Multiple potential binding sites; Predicted soluble (easier expression); Novel sequence - potential for new properties,
+4,ESTERASE_DEMO3,,Bacillus subtilis,301,75.2,0.742,0.731,0.550,0.600,1.000,True,1,Good confidence structure; Clear active site detected; Predicted soluble (easier expression); Novel sequence - potential for new properties,
+5,HYDROLASE_DEMO4,,Pseudomonas sp.,278,68.4,0.728,0.685,0.550,0.600,1.000,True,1,Moderate confidence structure; Clear active site detected; Predicted soluble (easier expression); Novel sequence - potential for new properties,

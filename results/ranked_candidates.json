@@ -1,0 +1,122 @@
+[
+  {
+    "rank": 1,
+    "sequence_id": "PETASE_DEMO1",
+    "accession": "",
+    "organism": "Ideonella sakaiensis",
+    "length": 290,
+    "scores": {
+      "overall": 0.8623,
+      "structural": 0.8412,
+      "active_site": 0.9,
+      "novelty": 0.6,
+      "stability": 1.0
+    },
+    "properties": {
+      "plddt_mean": 92.5,
+      "pae_mean": 3.2,
+      "is_soluble": true,
+      "molecular_weight": 31900,
+      "isoelectric_point": 6.5
+    },
+    "catalytic_residues": [],
+    "functional_notes": "Very high confidence structure; Multiple potential binding sites; Predicted soluble (easier expression); Novel sequence - potential for new properties",
+    "pdb_path": ""
+  },
+  {
+    "rank": 2,
+    "sequence_id": "CUTINASE_DEMO2",
+    "accession": "",
+    "organism": "Thermobifida fusca",
+    "length": 261,
+    "scores": {
+      "overall": 0.8542,
+      "structural": 0.8142,
+      "active_site": 0.9,
+      "novelty": 0.6,
+      "stability": 1.0
+    },
+    "properties": {
+      "plddt_mean": 88.3,
+      "pae_mean": 4.1,
+      "is_soluble": true,
+      "molecular_weight": 28710,
+      "isoelectric_point": 6.5
+    },
+    "catalytic_residues": [],
+    "functional_notes": "Good confidence structure; Multiple potential binding sites; Predicted soluble (easier expression); Novel sequence - potential for new properties",
+    "pdb_path": ""
+  },
+  {
+    "rank": 3,
+    "sequence_id": "LIPASE_DEMO5",
+    "accession": "",
+    "organism": "Thermomyces lanuginosus",
+    "length": 269,
+    "scores": {
+      "overall": 0.8419,
+      "structural": 0.7732,
+      "active_site": 0.9,
+      "novelty": 0.6,
+      "stability": 1.0
+    },
+    "properties": {
+      "plddt_mean": 81.7,
+      "pae_mean": 5.3,
+      "is_soluble": true,
+      "molecular_weight": 29590,
+      "isoelectric_point": 6.5
+    },
+    "catalytic_residues": [],
+    "functional_notes": "Good confidence structure; Multiple potential binding sites; Predicted soluble (easier expression); Novel sequence - potential for new properties",
+    "pdb_path": ""
+  },
+  {
+    "rank": 4,
+    "sequence_id": "ESTERASE_DEMO3",
+    "accession": "",
+    "organism": "Bacillus subtilis",
+    "length": 301,
+    "scores": {
+      "overall": 0.7417,
+      "structural": 0.7307,
+      "active_site": 0.55,
+      "novelty": 0.6,
+      "stability": 1.0
+    },
+    "properties": {
+      "plddt_mean": 75.2,
+      "pae_mean": 6.8,
+      "is_soluble": true,
+      "molecular_weight": 33110,
+      "isoelectric_point": 6.5
+    },
+    "catalytic_residues": [],
+    "functional_notes": "Good confidence structure; Clear active site detected; Predicted soluble (easier expression); Novel sequence - potential for new properties",
+    "pdb_path": ""
+  },
+  {
+    "rank": 5,
+    "sequence_id": "HYDROLASE_DEMO4",
+    "accession": "",
+    "organism": "Pseudomonas sp.",
+    "length": 278,
+    "scores": {
+      "overall": 0.7281,
+      "structural": 0.6853,
+      "active_site": 0.55,
+      "novelty": 0.6,
+      "stability": 1.0
+    },
+    "properties": {
+      "plddt_mean": 68.4,
+      "pae_mean": 8.5,
+      "is_soluble": true,
+      "molecular_weight": 30580,
+      "isoelectric_point": 6.5
+    },
+    "catalytic_residues": [],
+    "functional_notes": "Moderate confidence structure; Clear active site detected; Predicted soluble (easier expression); Novel sequence - potential for new properties",
+    "pdb_path": ""
+  }
+]
